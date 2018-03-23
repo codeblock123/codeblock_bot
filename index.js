@@ -4,7 +4,7 @@ var request = require('request');
 var cheerio = require('cheerio');
 var fs = require('fs');
 var app = express();
-var port = 8000;
+var port = 8080;
 const Discord = require("discord.js");
 const TOKEN = "NDAwMDIzMDI0NjQxNzY5NDgz.DYMZBA.TRy-qDk6AnlUTvyaIjQ6inJ78WQ";
 var lookup = require('binlookup')
@@ -65,6 +65,20 @@ bot.on("message", function(message){
 
 
 	if (message.content.startsWith("!cpf")) {
+		const timeout = ms => new Promise(res => setTimeout(res, ms))
+		function convinceMe (convince) {
+		  //let unixTime = Math.round(+new Date() / 1000)
+		  message.reply(message.author.username + "Espere um pouco que eu vou procurara 🔍")
+		
+		}
+		async function delay () {
+		  convinceMe('started')
+		  await timeout(5000)
+		  return
+		}
+
+		delay()
+
 		var cpf = message.content;
 		var regexCpf = /[\w]{3}\.[\w]{3}\.[\w]{3}-[\w]{2}/u
 		var regexCpf2 = /[\w]{11}/g
@@ -77,17 +91,27 @@ bot.on("message", function(message){
 			if (err) {
 				console.log(err);
 			}else{
+				function replaceAll(str, find, replace) {
+					return str.replace(new RegExp(find, 'g'), replace);
+				}
 				var json = JSON.parse(body)
 				var nome = JSON.stringify(json.pessoa.nome)
+				nome = replaceAll(nome,'"',"")
 				var cpf = JSON.stringify(json.pessoa.cpf)
+				cpf = replaceAll(cpf,'"',"")
 				var mae = JSON.stringify(json.pessoa.mae)
-				var irmaoNome = JSON.stringify(json.irmaos.irmao.nome)
-				var irmaoCpf = JSON.stringify(json.irmaos.irmao.cpf)
+				mae = replaceAll(mae,'"',"")
+				var irmaoNome = "N/A";
+				var irmaoCpf = "N/A";
+				if (json.irmaos) {
+					var irmaoNome = JSON.stringify(json.irmaos.irmao.nome)
+					irmaoNome = replaceAll(irmaoNome,'"',"")
+					var irmaoCpf = JSON.stringify(json.irmaos.irmao.cpf)
+					irmaoCpf = replaceAll(irmaoCpf,'"',"")
+				}
 				//console.log(json)
 				//var telefones = result.telefones.telefone
-				function replaceAll(str, find, replace) {
-					    return str.replace(new RegExp(find, 'g'), replace);
-					}
+				
 				var telefone = JSON.stringify(json.telefones.telefone)
 				telfone = JSON.parse(telefone)
 				telefone = telefone.split("[").join("")
@@ -111,7 +135,9 @@ bot.on("message", function(message){
 
 				    var complemento = JSON.stringify(enderecos[0].complemento)
 				    complemento = replaceAll(complemento,'"',"")
-
+				    if (complemento == "{}"){
+				    	complemento = "N/A"
+				    }
 
 				    var numero = JSON.stringify(enderecos[0].numero)
 				    numero = replaceAll(numero,'"',"")
@@ -149,20 +175,19 @@ bot.on("message", function(message){
  			.setTitle("Consulta: " +cpf)
  			.setAuthor(message.author.username, "https://i.imgur.com/lm8s41J.png")
  			.setColor(0x00B5B5)
- 			.addField("Nome",nome, true)
- 			.addField("Cpf",cpf, true)
- 			.addField("Nome da mãe",mae, true)
- 			.addField("Endereço",tipo + logradouro, true)
- 			.addField("Numero",numero, true)
- 			.addField("Complemento",complemento, true)
- 			.addField("Cep",cep, true)
- 			.addField("Bairro",bairro, true)
- 			.addField("Cidade",cidade, true)
- 			.addField("UF",uf, true)
- 			.addField("Telefones",telefone, true)
- 			.setDescription("Dados dos irmãos")
- 			.addField("Irmãos",irmaoNome, true)
- 			.addField("Cpf",irmaoCpf, true)
+ 			.addField("Nome","**"+nome+"**", true)
+ 			.addField("Cpf","**"+cpf+"**", true)
+ 			.addField("Nome da mãe","**"+mae+"**", true)
+ 			.addField("Endereço","**"+tipo + logradouro+"**", true)
+ 			.addField("Numero","**"+numero+"**", true)
+ 			.addField("Complemento","**"+complemento+"**", true)
+ 			.addField("Cep","**"+cep+"**", true)
+ 			.addField("Bairro","**"+bairro+"**", true)
+ 			.addField("Cidade","**"+cidade+"**", true)
+ 			.addField("UF","**"+uf+"**", true)
+ 			.addField("Telefones","**"+telefone+"**", true)
+ 			.addField("Dados do Irmão(a)","Nome: " + "**"+irmaoNome+"**" + "\nCpf: " + "**"+irmaoCpf+"**" , true)
+
 
  			message.channel.send({embed});
 
@@ -176,5 +201,5 @@ bot.on("message", function(message){
 });
 
 
-app.listen(port);
+//app.listen(port);
 bot.login(TOKEN);
