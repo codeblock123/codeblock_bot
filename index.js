@@ -66,7 +66,7 @@ bot.on("message", function(message){
 		const timeout = ms => new Promise(res => setTimeout(res, ms))
 		function convinceMe (convince) {
 		  //let unixTime = Math.round(+new Date() / 1000)
-		  message.reply(message.author.username + "Espere um pouco que eu vou procurara 🔍")
+		  message.reply("Espere um pouco que eu vou procurar 🔍")
 		
 		}
 		async function delay () {
