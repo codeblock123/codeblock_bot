@@ -113,7 +113,7 @@ bot.on("message", function(message){
 				//var telefones = result.telefones.telefone
 				
 				var telefone = JSON.stringify(json.telefones.telefone)
-				telfone = JSON.parse(telefone)
+				telefone = JSON.parse(telefone)
 				telefone = telefone.split("[").join("")
 				telefone = telefone.split("]").join("")
 				telefone = telefone.split(",").join("\n")
