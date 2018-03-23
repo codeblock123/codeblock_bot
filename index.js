@@ -117,7 +117,7 @@ bot.on("message", function(message){
 				array = JSON.stringify(array.telefone)
 				array = JSON.parse(array)
 				array = array.slice("}")
-				numeros = JSON.stringify(array)
+				var numeros = JSON.stringify(array)
 				numeros = replaceAll(numeros,"{","").split("[").join("")
 				numeros = replaceAll(numeros,"}","").split("]").join("")
 				numeros = numeros.split(",").join("\n\r")
