@@ -109,18 +109,21 @@ bot.on("message", function(message){
 					var irmaoCpf = JSON.stringify(json.irmaos.irmao.cpf)
 					irmaoCpf = replaceAll(irmaoCpf,'"',"")
 				}
-				//console.log(json)
-				//var telefones = result.telefones.telefone
-				
-				var telefone = JSON.stringify(json.telefones.telefone)
-				telefone = JSON.parse(telefone)
-				telefone = telefone.split("[").join("")
-				telefone = telefone.split("]").join("")
-				telefone = telefone.split(",").join("\n")
-				telefone = telefone.split("{").join("")
-				telefone = telefone.split("}").join("")
-				telefone = replaceAll(telefone,'"',"")
-				//console.log(telefone)
+				function replaceAll(str,find,replace) {
+				    return str.replace(new RegExp(find, 'g'), replace);
+				}
+				var telefone = JSON.stringify(json.telefones)
+				var array = JSON.parse(telefone)
+				array = JSON.stringify(array.telefone)
+				array = JSON.parse(array)
+				array = array.slice("}")
+				numeros = JSON.stringify(array)
+				numeros = replaceAll(numeros,"{","").split("[").join("")
+				numeros = replaceAll(numeros,"}","").split("]").join("")
+				numeros = numeros.split(",").join("\n\r")
+				numeros = replaceAll(numeros,'"',"")
+				var total = numeros.slice("\n\r")
+
 				var enderecos = json.enderecos.endereco //Pega endereco
 				for(var end in enderecos){
 					 function replaceAll(str, find, replace) {
@@ -154,22 +157,6 @@ bot.on("message", function(message){
 				    var uf = JSON.stringify(enderecos[0].uf)
 				    uf = replaceAll(uf,'"',"")
 				}
-
-			// console.log("Nome: " + nome + "\n")
-			// console.log("Cpf: " + cpf + "\n")
-			// console.log("Nome da mãe: " + mae + "\n")
-			// console.log("Endereço: " + tipo + " " + logradouro +"\n")
-			// console.log("Numero: " + numero + "\n")
-			// console.log("Complemento: " + complemento + "\n")
-			// console.log("Cep: " + cep + "\n")
-			// console.log("Bairro: " + bairro + "\n")
-			// console.log("Cidade: " + cidade + "\n")
-			// console.log("UF: " + uf + "\n")
-			// console.log("*____TELEFONES____*\n")
-			// console.log(telefone + "\n")
-			// console.log("*____IRMÃOS____*")
-			// console.log("Nome: " + irmaoNome + "\n")
-			// console.log("Cpf: " + irmaoCpf + "\n")
 
 			const embed = new Discord.RichEmbed()
  			.setTitle("Consulta: " +cpf)
