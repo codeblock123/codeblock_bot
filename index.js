@@ -1,13 +1,10 @@
-var express = require('express');
 var path = require('path');
 var request = require('request');
-var cheerio = require('cheerio');
 var fs = require('fs');
-var app = express();
 var port = 8080;
 const Discord = require("discord.js");
 const TOKEN = "NDAwMDIzMDI0NjQxNzY5NDgz.DYMZBA.TRy-qDk6AnlUTvyaIjQ6inJ78WQ";
-var lookup = require('binlookup')
+var lookup = require('binlookup')()
 var bot = new Discord.Client();
 const 	PREFIX = "!bin";
 
@@ -37,12 +34,13 @@ bot.on("message", function(message){
 			 var banco    = JSON.stringify(data.bank.name)	
 			 var pais     = JSON.stringify(data.country.name)
 	 		 var fone     = JSON.stringify(data.bank.phone);
+       var site     = JSON.stringify(data.bank.url);
 	 			//message.reply("\n Tipo:**__ " + tipo+"\n Bandeira" + bandeira + "\n")
  			const embed = new Discord.RichEmbed()
  			.setTitle("Bin " + bin)
  			.setAuthor(message.author.username, "https://i.imgur.com/lm8s41J.png")
  			.setColor(0x00B5B5)
- 			.setDescription("Tipo: "+ tipo +"\n" + "Bandeira: "+ bandeira + "\n" + "Banco: "+ banco + "\n" + "Pais: "+ pais + "\n" + "Fone: " + fone)
+ 			.setDescription("Tipo: "+ tipo +"\n" + "Bandeira: "+ bandeira + "\n" + "Banco: "+ banco + "\n" + "Pais: "+ pais + "\n" + "Fone: " + fone + "\nSite: "+site)
   			message.channel.send({embed});
 
 		})
