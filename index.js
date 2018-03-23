@@ -1,10 +1,13 @@
+var express = require('express');
 var path = require('path');
 var request = require('request');
+var cheerio = require('cheerio');
 var fs = require('fs');
+var app = express();
 var port = 8080;
 const Discord = require("discord.js");
 const TOKEN = "NDAwMDIzMDI0NjQxNzY5NDgz.DYMZBA.TRy-qDk6AnlUTvyaIjQ6inJ78WQ";
-var lookup = require('binlookup')()
+var lookup = require('binlookup')
 var bot = new Discord.Client();
 const 	PREFIX = "!bin";
 
@@ -34,13 +37,12 @@ bot.on("message", function(message){
 			 var banco    = JSON.stringify(data.bank.name)	
 			 var pais     = JSON.stringify(data.country.name)
 	 		 var fone     = JSON.stringify(data.bank.phone);
-       var site     = JSON.stringify(data.bank.url);
 	 			//message.reply("\n Tipo:**__ " + tipo+"\n Bandeira" + bandeira + "\n")
  			const embed = new Discord.RichEmbed()
  			.setTitle("Bin " + bin)
  			.setAuthor(message.author.username, "https://i.imgur.com/lm8s41J.png")
  			.setColor(0x00B5B5)
- 			.setDescription("Tipo: "+ tipo +"\n" + "Bandeira: "+ bandeira + "\n" + "Banco: "+ banco + "\n" + "Pais: "+ pais + "\n" + "Fone: " + fone + "\nSite: "+site)
+ 			.setDescription("Tipo: "+ tipo +"\n" + "Bandeira: "+ bandeira + "\n" + "Banco: "+ banco + "\n" + "Pais: "+ pais + "\n" + "Fone: " + fone)
   			message.channel.send({embed});
 
 		})
@@ -66,7 +68,7 @@ bot.on("message", function(message){
 		const timeout = ms => new Promise(res => setTimeout(res, ms))
 		function convinceMe (convince) {
 		  //let unixTime = Math.round(+new Date() / 1000)
-		  message.reply("Espere um pouco que eu vou procurar 🔍")
+		  message.reply("Espere um pouco que eu vou procurara 🔍")
 		
 		}
 		async function delay () {
@@ -89,93 +91,79 @@ bot.on("message", function(message){
 			if (err) {
 				console.log(err);
 			}else{
+				//console.log(body);
+				var json = JSON.parse(body)
 				function replaceAll(str, find, replace) {
 					return str.replace(new RegExp(find, 'g'), replace);
 				}
-				var json = JSON.parse(body)
+				console.log(json)
 				var nome = JSON.stringify(json.pessoa.nome)
-				nome = replaceAll(nome,'"',"")
 				var cpf = JSON.stringify(json.pessoa.cpf)
-				cpf = replaceAll(cpf,'"',"")
 				var mae = JSON.stringify(json.pessoa.mae)
-				mae = replaceAll(mae,'"',"")
-				var irmaoNome = "N/A";
-				var irmaoCpf = "N/A";
-				if (json.irmaos) {
-					var irmaoNome = JSON.stringify(json.irmaos.irmao.nome)
-					irmaoNome = replaceAll(irmaoNome,'"',"")
-					var irmaoCpf = JSON.stringify(json.irmaos.irmao.cpf)
-					irmaoCpf = replaceAll(irmaoCpf,'"',"")
-				}
-				function replaceAll(str,find,replace) {
-				    return str.replace(new RegExp(find, 'g'), replace);
-				}
-				var telefone = JSON.stringify(json.telefones)
-				var array = JSON.parse(telefone)
-				array = JSON.stringify(array.telefone)
-				array = JSON.parse(array)
-				array = array.slice("}")
-				var numeros = JSON.stringify(array)
-				numeros = replaceAll(numeros,"{","").split("[").join("")
-				numeros = replaceAll(numeros,"}","").split("]").join("")
-				numeros = numeros.split(",").join("\n\r")
-				numeros = replaceAll(numeros,'"',"")
-				var total = numeros.slice("\n\r")
-
-				var enderecos = json.enderecos.endereco //Pega endereco
-				for(var end in enderecos){
-					 function replaceAll(str, find, replace) {
-					    return str.replace(new RegExp(find, 'g'), replace);
+				var tipo = JSON.stringify(json.enderecos.endereco.tipo)
+				var complemento = JSON.stringify(json.enderecos.endereco.complemento)
+				var logradouro = JSON.stringify(json.enderecos.endereco.logradouro)
+				logradouro = replaceAll(logradouro,'"',"")
+				tipo = replaceAll(tipo,'"',"")
+				var numero = JSON.stringify(json.enderecos.endereco.numero)
+				var cep = JSON.stringify(json.enderecos.endereco.cep)
+				var bairro = JSON.stringify(json.enderecos.endereco.bairro)
+				var cidade = JSON.stringify(json.enderecos.endereco.cidade)
+				var uf = JSON.stringify(json.enderecos.endereco.uf)
+				var ddd  =  "";
+				var telefone = "";
+				try {
+					if (json['telefones']["telefone"]){
+						var totalTelefone = json['telefones']["telefone"];
+						for (var i = 0; i < totalTelefone.length; i++) {
+							 telefone = JSON.stringify(json['telefones']["telefone"][i].fone);
+							 ddd = JSON.stringify(json['telefones']["telefone"][i].ddd);
+							 ddd = replaceAll(ddd,'"',"")
+							 telefone = replaceAll(telefone,'"',"")
+						}
 					}
-					//console.log(JSON.stringify(enderecos[0]))
-				    var tipo = JSON.stringify(enderecos[end].tipo)
-				    tipo = replaceAll(tipo,'"',"")
-				    
-				    var logradouro = JSON.stringify(enderecos[0].logradouro)
-				    logradouro = replaceAll(logradouro,'"',"")
-
-				    var complemento = JSON.stringify(enderecos[0].complemento)
-				    complemento = replaceAll(complemento,'"',"")
-				    if (complemento == "{}"){
-				    	complemento = "N/A"
-				    }
-
-				    var numero = JSON.stringify(enderecos[0].numero)
-				    numero = replaceAll(numero,'"',"")
-
-				    var cep =  JSON.stringify(enderecos[0].cep)
-				    cep = replaceAll(cep,'"',"")
-
-				    var bairro = JSON.stringify(enderecos[0].bairro)
-				    bairro = replaceAll(bairro,'"',"")
-
-				    var cidade = JSON.stringify(enderecos[0].cidade)
-				    cidade = replaceAll(cidade,'"',"")
-
-				    var uf = JSON.stringify(enderecos[0].uf)
-				    uf = replaceAll(uf,'"',"")
 				}
+				catch(e){
 
-			const embed = new Discord.RichEmbed()
- 			.setTitle("Consulta: " +cpf)
- 			.setAuthor(message.author.username, "https://i.imgur.com/lm8s41J.png")
- 			.setColor(0x00B5B5)
- 			.addField("Nome","**"+nome+"**", true)
- 			.addField("Cpf","**"+cpf+"**", true)
- 			.addField("Nome da mãe","**"+mae+"**", true)
- 			.addField("Endereço","**"+tipo + logradouro+"**", true)
- 			.addField("Numero","**"+numero+"**", true)
- 			.addField("Complemento","**"+complemento+"**", true)
- 			.addField("Cep","**"+cep+"**", true)
- 			.addField("Bairro","**"+bairro+"**", true)
- 			.addField("Cidade","**"+cidade+"**", true)
- 			.addField("UF","**"+uf+"**", true)
- 			.addField("Telefones","**"+telefone+"**", true)
- 			.addField("Dados do Irmão(a)","Nome: " + "**"+irmaoNome+"**" + "\nCpf: " + "**"+irmaoCpf+"**" , true)
+				}
+				try{
+					console.log(JSON.stringify(json['enderecos']["endereco"][0]))
+					var tipo = JSON.stringify(json['enderecos']["endereco"][0].tipo)
+					var logradouro = JSON.stringify(json['enderecos']["endereco"][0].logradouro)
+					logradouro = replaceAll(logradouro,'"',"")
+					tipo = replaceAll(tipo,'"',"")
+					var complemento = JSON.stringify(json['enderecos']["endereco"][0].complemento)
+					var cep = JSON.stringify(json['enderecos']["endereco"][0].cep)
+					var bairro = JSON.stringify(json['enderecos']["endereco"][0].bairro)
+					var cidade = JSON.stringify(json['enderecos']["endereco"][0].cidade)
+					var uf = JSON.stringify(json['enderecos']["endereco"][0].uf)
+					var numero = JSON.stringify(json['enderecos']["endereco"][0].numero)	
+				}
+				catch(e){
 
 
- 			message.channel.send({embed});
+				}
+				
+				const embed = new Discord.RichEmbed()
+	 			.setTitle("Consulta: " +cpf)
+	 			.setAuthor(message.author.username, "https://i.imgur.com/lm8s41J.png")
+	 			.setColor(0x00B5B5)
+	 			.addField("Nome","**"+nome+"**", true)
+	 			.addField("Cpf","**"+cpf+"**", true)
+	 			.addField("Nome da mãe","**"+mae+"**", true)
+	 			.addField("Endereço",'**'+tipo + logradouro+'**', true)
+	 			.addField("Numero","**"+numero+"**", true)
+	 			.addField("Complemento","**"+complemento+"**", true)
+	 			.addField("Cep","**"+cep+"**", true)
+	 			.addField("Bairro","**"+bairro+"**", true)
+	 			.addField("Cidade","**"+cidade+"**", true)
+	 			.addField("UF","**"+uf+"**", true)
+	 			.addField("telefone","**"+"("+ddd+")"+telefone+"**", true)
+	 			
 
+	 			message.channel.send({embed});
+
+				
 
 			}
 
@@ -183,6 +171,17 @@ bot.on("message", function(message){
 			
 	}
 
+	let role = message.guild.roles.find("name","Administrador")
+	if (message.content.startsWith("!delete")) {
+		if (message.member.roles.has(role.id)) {
+			let content = message.content;
+			let total = content.replace("!delete","");
+			total = parseInt(total);
+			message.channel.bulkDelete(total).then(() => {
+	 			message.channel.send("Deleted " + total + " messages.").then(msg => msg.delete(3000));
+			});	
+		}
+	}
 });
 
 
