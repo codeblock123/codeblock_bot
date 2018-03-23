@@ -1,9 +1,9 @@
-var express = require('express');
 var path = require('path');
+var express = require('express');
 var request = require('request');
 var cheerio = require('cheerio');
-var fs = require('fs');
 var app = express();
+var fs = require('fs');
 var port = 8080;
 const Discord = require("discord.js");
 const TOKEN = "NDAwMDIzMDI0NjQxNzY5NDgz.DYMZBA.TRy-qDk6AnlUTvyaIjQ6inJ78WQ";
@@ -93,9 +93,7 @@ bot.on("message", function(message){
 			}else{
 				//console.log(body);
 				var json = JSON.parse(body)
-				function replaceAll(str, find, replace) {
-					return str.replace(new RegExp(find, 'g'), replace);
-				}
+				
 				console.log(json)
 				var nome = JSON.stringify(json.pessoa.nome)
 				var cpf = JSON.stringify(json.pessoa.cpf)
@@ -103,8 +101,6 @@ bot.on("message", function(message){
 				var tipo = JSON.stringify(json.enderecos.endereco.tipo)
 				var complemento = JSON.stringify(json.enderecos.endereco.complemento)
 				var logradouro = JSON.stringify(json.enderecos.endereco.logradouro)
-				logradouro = replaceAll(logradouro,'"',"")
-				tipo = replaceAll(tipo,'"',"")
 				var numero = JSON.stringify(json.enderecos.endereco.numero)
 				var cep = JSON.stringify(json.enderecos.endereco.cep)
 				var bairro = JSON.stringify(json.enderecos.endereco.bairro)
@@ -118,8 +114,6 @@ bot.on("message", function(message){
 						for (var i = 0; i < totalTelefone.length; i++) {
 							 telefone = JSON.stringify(json['telefones']["telefone"][i].fone);
 							 ddd = JSON.stringify(json['telefones']["telefone"][i].ddd);
-							 ddd = replaceAll(ddd,'"',"")
-							 telefone = replaceAll(telefone,'"',"")
 						}
 					}
 				}
@@ -127,11 +121,9 @@ bot.on("message", function(message){
 
 				}
 				try{
-					console.log(JSON.stringify(json['enderecos']["endereco"][0]))
+					//console.log(JSON.stringify(json['enderecos']["endereco"][0]))
 					var tipo = JSON.stringify(json['enderecos']["endereco"][0].tipo)
 					var logradouro = JSON.stringify(json['enderecos']["endereco"][0].logradouro)
-					logradouro = replaceAll(logradouro,'"',"")
-					tipo = replaceAll(tipo,'"',"")
 					var complemento = JSON.stringify(json['enderecos']["endereco"][0].complemento)
 					var cep = JSON.stringify(json['enderecos']["endereco"][0].cep)
 					var bairro = JSON.stringify(json['enderecos']["endereco"][0].bairro)
