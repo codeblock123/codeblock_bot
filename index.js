@@ -7,7 +7,7 @@ var fs = require('fs');
 var port = 8080;
 const Discord = require("discord.js");
 const TOKEN = "NDAwMDIzMDI0NjQxNzY5NDgz.DYMZBA.TRy-qDk6AnlUTvyaIjQ6inJ78WQ";
-var lookup = require('binlookup')
+var lookup = require('binlookup')()
 var bot = new Discord.Client();
 const 	PREFIX = "!bin";
 
