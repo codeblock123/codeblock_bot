@@ -163,17 +163,6 @@ bot.on("message", function(message){
 			
 	}
 
-	let role = message.guild.roles.find("name","Administrador")
-	if (message.content.startsWith("!delete")) {
-		if (message.member.roles.has(role.id)) {
-			let content = message.content;
-			let total = content.replace("!delete","");
-			total = parseInt(total);
-			message.channel.bulkDelete(total).then(() => {
-	 			message.channel.send("Deleted " + total + " messages.").then(msg => msg.delete(3000));
-			});	
-		}
-	}
 });
 
 
