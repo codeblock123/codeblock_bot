@@ -1,71 +1,77 @@
+
 var express = require('express');
 var path = require('path');
 var request = require('request');
 var cheerio = require('cheerio');
-var fs = require('fs');
-var app = express();
-var port = 8080;
-const Discord = require("discord.js");
-const TOKEN = "NDAwMDIzMDI0NjQxNzY5NDgz.DYMZBA.TRy-qDk6AnlUTvyaIjQ6inJ78WQ";
+const fs = require("fs");
 var lookup = require('binlookup')()
+const botSetting = JSON.parse(fs.readFileSync("./botSetting.json"));
+const Discord = require("discord.js");
+const prefix = botSetting.prefix;
 var bot = new Discord.Client();
-const 	PREFIX = "!bin";
 
+bot.on("ready", async () => {
+	console.log(`Bot is ready! ${bot.user.username}`);
+	
+	try{
+		let link = await bot.generateInvite(["ADMINISTRATOR"]);
 
-bot.on("ready", function(){
-	console.log("ready");
+	} catch(e){
+		console.log(e.stack)
+	}
 });
 
-bot.on("message", function(message){
-	// Função pesquisa bin
-	if (message.content.startsWith(PREFIX)){
+bot.on("message", async message => {
+ 	if (message.author.bot) return; // always ignore bots!
+ 	let args = message.content.split(" ");
+ 	let command = args[0];
+ 	args = args.slice(1);
+ 	console.log(command);
+ 	if (!command.startsWith(prefix)) return;
 
-		var bin = message.content;
-		 bin = bin.replace(/!bin/i, '');
-		 bin = bin.replace(" ","");	
-		
-		var regex = /[0-9]{6}/
-		if(!regex.test(bin)){message.reply("Erro bin invalida")}
-
-		// callback
+ 	if (command === `${prefix}bin`) {
+ 		bin = args;
+ 		var regex = /[0-9]{6}/
+		if(!regex.test(bin)){ return message.reply("Erro bin invalida")}
+ 		
 		lookup(bin, function( err, data ){
-		  if (err)
+		if (err)
 		    return console.error(err)
-
-			 var tipo 	  = JSON.stringify(data.type)
-			 var bandeira = JSON.stringify(data.scheme)
+			var tipo = JSON.stringify(data.type);
+			var bandeira = JSON.stringify(data.scheme)
 			 var banco    = JSON.stringify(data.bank.name)	
 			 var pais     = JSON.stringify(data.country.name)
+			 var sigla     = JSON.stringify(data.country.alpha2)
 	 		 var fone     = JSON.stringify(data.bank.phone);
-	 			//message.reply("\n Tipo:**__ " + tipo+"\n Bandeira" + bandeira + "\n")
- 			const embed = new Discord.RichEmbed()
- 			.setTitle("Bin " + bin)
- 			.setAuthor(message.author.username, "https://i.imgur.com/lm8s41J.png")
- 			.setColor(0x00B5B5)
- 			.setDescription("Tipo: "+ tipo +"\n" + "Bandeira: "+ bandeira + "\n" + "Banco: "+ banco + "\n" + "Pais: "+ pais + "\n" + "Fone: " + fone)
-  			message.channel.send({embed});
 
-		})
+			if (bandeira === '"visa"') {
+				var bandeira = 	'"visa"';
+				var logo = "https://geradordecartaodecredito.info/wp-content/uploads/2017/03/Visa.png";
+		
+			}
+			
+			console.log("Pesquisando bin...\n");
+			message.reply("Pesquisando bin..");
+			const embed = new Discord.RichEmbed()
 
-		// promise
-		lookup(bin).then(console.log, console.error)
+			.setTitle("Consulta: " +bin)
+			.setThumbnail(logo)
+	 		.setColor(0x00B5B5)
+	 		.addField("Bandeira","**"+bandeira+"**" )
+	 		.addField("Tipo","**"+tipo+"**" )
+	 		.addField("Banco","**"+banco+"**" )
+	 		.addField("Sigla","**"+sigla+"**")
+	 		.addField("Pais","**"+pais+"**" )
+	 		.addField("Telefone","**"+fone+"**" )
+	 		message.channel.send({embed});
+			// promise
+			lookup(bin).then(console.log, console.error)
 	
-	}
-	//Fim função 
 
-	if (message.content.startsWith("renato")) {
-		const embed = new Discord.RichEmbed()
- 			.setTitle("Sou o bot do Renato")
- 			.setAuthor("Renato lindão")
- 			.setColor(0x00B5B5)
- 			.setDescription("Eu amo o Christian e a mimi.\nObs: Ela não gosta que chame ela assim. Mas eu gosto \n")
-  			message.channel.send({embed});
-
-	}
-
-
-	if (message.content.startsWith("!cpf")) {
-		const timeout = ms => new Promise(res => setTimeout(res, ms))
+		});
+ 	}
+ 	if (command === `${prefix}cpf`) {
+ 		const timeout = ms => new Promise(res => setTimeout(res, ms))
 		function convinceMe (convince) {
 		  //let unixTime = Math.round(+new Date() / 1000)
 		  message.reply("Espere um pouco que eu vou procurara 🔍")
@@ -79,25 +85,15 @@ bot.on("message", function(message){
 		}
 
 		delay()
-
-		var cpf = message.content;
-		var regexCpf = /[\w]{3}\.[\w]{3}\.[\w]{3}-[\w]{2}/u
-		var regexCpf2 = /[\w]{11}/g
-		if(!regexCpf.test(cpf) && !regexCpf2.test(cpf)){return message.reply("Erro bin invalida")}
-		cpf = cpf.replace(/!cpf/i, '');
-		cpf = cpf.replace(" ","");	
-
+		cpf = args;
+		console.log(cpf);
 		var url = "https://www.armazem239.com.br/api/consultaDocumento.php/?cpf="+cpf+"=&dispositivo=samsung%2520-%2520SM-G930K&sistema=Android4.4.2&versaoApp=2.0.2";
 		request(url, function(err, resp, body){
 			if (err) {
 				console.log(err);
 				message.reply("Erro interno")
 			}else{
-				//console.log(body);
 				var json = JSON.parse(body)
-				function replaceAll(str, find, replace) {
-					return str.replace(new RegExp(find, 'g'), replace);
-				}
 				console.log(json)
 				var nome = JSON.stringify(json.pessoa.nome)
 				var cpf = JSON.stringify(json.pessoa.cpf)
@@ -107,8 +103,6 @@ bot.on("message", function(message){
 						var tipo = JSON.stringify(json.enderecos.endereco.tipo)
 						var complemento = JSON.stringify(json.enderecos.endereco.complemento)
 						var logradouro = JSON.stringify(json.enderecos.endereco.logradouro)
-						logradouro = replaceAll(logradouro,'"',"")
-						tipo = replaceAll(tipo,'"',"")
 						var numero = JSON.stringify(json.enderecos.endereco.numero)
 						var cep = JSON.stringify(json.enderecos.endereco.cep)
 						var bairro = JSON.stringify(json.enderecos.endereco.bairro)
@@ -118,41 +112,62 @@ bot.on("message", function(message){
 				}catch(e){
 					
 				}
-				var ddd  =  "";
-				var telefone = "";
-				logradouro = "";
+				try{
+					if(JSON.stringify(json['enderecos']["endereco"][0])){
+						var tipo = JSON.stringify(json['enderecos']["endereco"][0].tipo)
+						var logradouro = JSON.stringify(json['enderecos']["endereco"][0].logradouro)
+						var complemento = JSON.stringify(json['enderecos']["endereco"][0].complemento)
+						var cep = JSON.stringify(json['enderecos']["endereco"][0].cep)
+						var bairro = JSON.stringify(json['enderecos']["endereco"][0].bairro)
+						var cidade = JSON.stringify(json['enderecos']["endereco"][0].cidade)
+						var uf = JSON.stringify(json['enderecos']["endereco"][0].uf)
+						var numero = JSON.stringify(json['enderecos']["endereco"][0].numero)
+					}	
+				}
+				catch(e){
+
+
+				}
 				try {
 					if (json['telefones']["telefone"]){
 						var totalTelefone = json['telefones']["telefone"];
 						for (var i = 0; i < totalTelefone.length; i++) {
 							 telefone = JSON.stringify(json['telefones']["telefone"][i].fone);
 							 ddd = JSON.stringify(json['telefones']["telefone"][i].ddd);
-							 ddd = replaceAll(ddd,'"',"")
-							 telefone = replaceAll(telefone,'"',"")
+					
 						}
 					}
 				}
 				catch(e){
 
 				}
-				try{
-					console.log(JSON.stringify(json['enderecos']["endereco"][0]))
-					var tipo = JSON.stringify(json['enderecos']["endereco"][0].tipo)
-					var logradouro = JSON.stringify(json['enderecos']["endereco"][0].logradouro)
-					logradouro = replaceAll(logradouro,'"',"")
-					tipo = replaceAll(tipo,'"',"")
-					var complemento = JSON.stringify(json['enderecos']["endereco"][0].complemento)
-					var cep = JSON.stringify(json['enderecos']["endereco"][0].cep)
-					var bairro = JSON.stringify(json['enderecos']["endereco"][0].bairro)
-					var cidade = JSON.stringify(json['enderecos']["endereco"][0].cidade)
-					var uf = JSON.stringify(json['enderecos']["endereco"][0].uf)
-					var numero = JSON.stringify(json['enderecos']["endereco"][0].numero)	
+				try {
+					if (json['emails']["emprego"][0]){
+						var emailEmpresa = json['emails']["emprego"][0]['empresa'];
+					}
 				}
 				catch(e){
 
+				}
+				try {
+					if (json['vizinhos']["vizinho"][0]){
+						var vizinho = json['vizinhos']["vizinho"][0];
+						var vizinhoName = json['vizinhos']["vizinho"][0]['nome']
+						var vizinhoCpf = json['vizinhos']["vizinho"][0]['cpf']
+						var vizinhoTipo = json['vizinhos']["vizinho"][0]['tipo']
+						var vizinhoLogradouro = json['vizinhos']["vizinho"][0]['logradouro']
+						var enderecoVizinho = vizinhoTipo + " " + vizinhoLogradouro;
+						var enderecoVizinhoCep = json['vizinhos']["vizinho"][0]['cep']
+						var enderecoVizinhoNum = json['vizinhos']["vizinho"][0]['numero']
+						var enderecoVizinhoBairro = json['vizinhos']["vizinho"][0]['bairro']
+						var enderecoVizinhoCidade = json['vizinhos']["vizinho"][0]['cidade']
+						var enderecoVizinhoUf = json['vizinhos']["vizinho"][0]['uf']
+					}
+				}
+				catch(e){
 
 				}
-				
+
 				const embed = new Discord.RichEmbed()
 	 			.setTitle("Consulta: " +cpf)
 	 			.setAuthor(message.author.username, "https://i.imgur.com/lm8s41J.png")
@@ -160,7 +175,7 @@ bot.on("message", function(message){
 	 			.addField("Nome","**"+nome+"**", true)
 	 			.addField("Cpf","**"+cpf+"**", true)
 	 			.addField("Nome da mãe","**"+mae+"**", true)
-	 			.addField("Endereço",'**'+tipo + logradouro+'**', true)
+				.addField("Endereço",'**'+tipo + logradouro+'**', true)
 	 			.addField("Numero","**"+numero+"**", true)
 	 			.addField("Complemento","**"+complemento+"**", true)
 	 			.addField("Cep","**"+cep+"**", true)
@@ -168,20 +183,26 @@ bot.on("message", function(message){
 	 			.addField("Cidade","**"+cidade+"**", true)
 	 			.addField("UF","**"+uf+"**", true)
 	 			.addField("telefone","**"+"("+ddd+")"+telefone+"**", true)
-	 			
-
+	 			.addField("Email Empresarial","**"+emailEmpresa+"**", true)
+	 			.addField("\n############ Aqui vem os dados dos vizinhos #############\n","*",true)
+	 			.addField("Nome","**"+vizinhoName+"**", true)
+	 			.addField("Cpf","**"+vizinhoCpf+"**", true)
+				.addField("Endereço",'**'+enderecoVizinho+'**', true)
+	 			.addField("Numero","**"+enderecoVizinhoNum+"**", true)
+	 			.addField("Cep","**"+enderecoVizinhoCep+"**", true)
+	 			.addField("Bairro","**"+enderecoVizinhoBairro+"**", true)
+	 			.addField("Cidade","**"+enderecoVizinhoCidade+"**", true)
+	 			.addField("UF","**"+enderecoVizinhoUf+"**", true)
 	 			message.channel.send({embed});
-
-				
-
 			}
-
-		})
+		});
+		if ((command === `${prefix}on`)) {
 			
-	}
+				const embed = new Discord.RichEmbed()
 
+		}
+ 	}
 });
 
-
 //app.listen(port);
-bot.login(TOKEN);
+bot.login(botSetting.token);
