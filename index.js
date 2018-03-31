@@ -1,8 +1,9 @@
 
+
 var express = require('express');
+var cheerio = require('cheerio');
 var path = require('path');
 var request = require('request');
-var cheerio = require('cheerio');
 const fs = require("fs");
 var lookup = require('binlookup')()
 const botSetting = JSON.parse(fs.readFileSync("./botSetting.json"));
@@ -31,7 +32,7 @@ bot.on("message", async message => {
  	if (!command.startsWith(prefix)) return;
 
  	if (command === `${prefix}bin`) {
- 		bin = args;
+ 		var bin = args;
  		var regex = /[0-9]{6}/
 		if(!regex.test(bin)){ return message.reply("Erro bin invalida")}
  		
@@ -86,7 +87,7 @@ bot.on("message", async message => {
 		}
 
 		delay()
-		cpf = args;
+		var cpf = args;
 		console.log(cpf);
 		var url = "https://www.armazem239.com.br/api/consultaDocumento.php/?cpf="+cpf+"=&dispositivo=samsung%2520-%2520SM-G930K&sistema=Android4.4.2&versaoApp=2.0.2";
 		request(url, function(err, resp, body){
@@ -133,8 +134,8 @@ bot.on("message", async message => {
 					if (json['telefones']["telefone"]){
 						var totalTelefone = json['telefones']["telefone"];
 						for (var i = 0; i < totalTelefone.length; i++) {
-							 telefone = JSON.stringify(json['telefones']["telefone"][i].fone);
-							 ddd = JSON.stringify(json['telefones']["telefone"][i].ddd);
+							 var telefone = JSON.stringify(json['telefones']["telefone"][i].fone);
+							 var ddd = JSON.stringify(json['telefones']["telefone"][i].ddd);
 					
 						}
 					}
@@ -205,5 +206,5 @@ bot.on("message", async message => {
  	}
 });
 
-app.listen(port);
+//app.listen(port);
 bot.login(botSetting.token);
