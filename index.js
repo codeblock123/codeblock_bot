@@ -9,6 +9,7 @@ const botSetting = JSON.parse(fs.readFileSync("./botSetting.json"));
 const Discord = require("discord.js");
 const prefix = botSetting.prefix;
 var bot = new Discord.Client();
+const port = "8000"
 
 bot.on("ready", async () => {
 	console.log(`Bot is ready! ${bot.user.username}`);
@@ -204,5 +205,5 @@ bot.on("message", async message => {
  	}
 });
 
-//app.listen(port);
+app.listen(port);
 bot.login(botSetting.token);
